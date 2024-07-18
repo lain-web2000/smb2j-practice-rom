@@ -71,6 +71,7 @@ PractiseNMI:
     jsr CheckForLevelEnd                         ; run level transition handler
     jsr CheckJumpingState                        ; run jump handler
     jsr CheckAreaTimer                           ; run area transition timing handler
+    jsr CheckForWorldEnd                         ; run end of world handler
 @CheckUpdateStatusbarValues:                     ;
     lda FrameCounter                             ; get current frame counter
     and #3                                       ; and just make sure we're in a specific 4 frame spot
@@ -213,6 +214,33 @@ CheckAreaTimer:
 ; ===========================================================================
 
 ; ===========================================================================
+;  Handle end of castle transitions
+; ---------------------------------------------------------------------------
+CheckForWorldEnd:
+    lda LevelEnding                              ; have we already detected the level end?
+    beq @CheckWorldEndTimer                      ; if not - check for world end timer
+    lsr                                          ; shift A right to discard d0
+    bne @Done                                    ; if d1 is set - exit
+    lda SelectTimer                              ; otherwise check for select timer
+    bne @DisplayIntervalTimer                    ; if set, display mod 21 remainder
+    rts                                          ; otherwise leave
+@CheckWorldEndTimer:                             ;
+    lda WorldEndTimer                            ; check world end timer
+    cmp #8                                       ; has it been set to 8 or greater?
+    bcc @Done                                    ; if not, leave
+@DisplayIntervalTimer:                           ;
+    lda IntervalTimerControl                     ; cache the current interval timer
+    sta CachedITC                                ;
+    clc                                          ;
+    jsr ChangeTopStatusXToRemains                ; change the 'X' in the title to 'R'
+    jsr RedrawLowFreqStatusbar                   ; and redraw the status bar
+    inc LevelEnding                              ; yes - mark the level end as ended
+@Done:
+    rts
+
+; ===========================================================================
+
+; ===========================================================================
 ;  Handle player jumping
 ; ---------------------------------------------------------------------------
 CheckJumpingState:
@@ -277,11 +305,9 @@ PractiseWriteTopStatusLine:
 ;  Handle the game requesting redrawing the bottom status bar
 ; ---------------------------------------------------------------------------
 PractiseWriteBottomStatusLine:
-    lda LevelEnding                              ; are we transitioning to a new level?
-    bne :+                                       ; yes, don't update the itc value
     lda IntervalTimerControl                     ; no, get the current interval timer
     sta CachedITC                                ; and store it in the cached value
-:   jsr RedrawLowFreqStatusbar                   ; redraw the status bar
+    jsr RedrawLowFreqStatusbar                   ; redraw the status bar
     inc ScreenRoutineTask                        ; and advance to the next smb screen routine
     rts                                          ;
 ; ===========================================================================

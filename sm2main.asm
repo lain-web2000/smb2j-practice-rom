@@ -10415,6 +10415,7 @@ HandleAxeMetatile:
        sta OperMode        ;set primary mode to victory mode
        lda #$18
        sta Player_X_Speed  ;set horizontal speed and continue to erase axe metatile
+       jsr BANK_PractisePrintScore
 ErACM: ldy $02             ;load vertical high nybble offset for block buffer
        lda #$00            ;load blank metatile
        sta ($06),y         ;store to remove old contents from block buffer
