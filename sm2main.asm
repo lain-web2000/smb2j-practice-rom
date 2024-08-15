@@ -13371,6 +13371,7 @@ SetHFAt: ora $04                    ;add other OAM attributes if necessary
          rts
 
 ;-------------------------------------------------------------------------------------
+ .export InitializeLeaves
  
 AttractModeSubs:
       lda OperMode_Task
