@@ -1,0 +1,4 @@
+title/boot-greated.o:	title/boot-greated.asm title/title.asm title/ascii.asm title/../defines.inc title/practise.asm title/menu.asm title/utils.asm title/background.asm title/../scripts/graphics/menu.bin title/bankswitching.asm title/rng.asm
+
+title/boot-greated.asm title/title.asm title/ascii.asm title/../defines.inc title/practise.asm title/menu.asm title/utils.asm title/background.asm title/../scripts/graphics/menu.bin title/bankswitching.asm title/rng.asm:
+

@@ -37,9 +37,17 @@ RNGQuickResume:
     beq @FrameAdjust                     ; if not set, we can skip ahead
     jsr FRStepRNGByY                     ; otherwise we advance the RNG based on the framerule value * 21
 @FrameAdjust:
-    lda IncrementRNG_122                 ; did we hold A for a 122 frame offset?
+    ldy IncrementRNG                 	 ; did we hold A or B for a frame offset?
     beq :+                               ; branch ahead if not
-    ldy #122                             ; otherwise set Y for 122 frames
+    dey									 ; did we hold A for both quests patterns?
+    beq @BothQuestsRNG					 ; if so, branch ahead to offset rng
+    ldy #254							 ; otherwise set Y for 431 frames (254 + 177)
+    jsr StepRNGByY						 ; and adjust rng for all stages patterns
+    ldy #177							 ; hallo :D
+    jsr StepRNGByY                       ;
+    beq :+                               ; unconditional branch when done
+@BothQuestsRNG:
+    ldy #122                             ; set Y for 122 frames
     jsr StepRNGByY                       ; and adjust rng for both endings patterns
 :   ldx SettablesPUP                     ; check if player has selected a powerup
     bne :+                               ; yes - skip ahead to adjust rng

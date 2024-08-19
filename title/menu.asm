@@ -143,10 +143,15 @@ MenuNMI:
     bne @DONE                                ; no - nothing to do, exit
     lda #0                                   ; yes - check held buttons
     ldx HeldButtons                          ;
+    cpx #B_Button                            ; check if we're holding B
+    bcc @A_BUTTON                            ; nope - skip ahead to check A button
+    lda #2                                   ; yes - set flag for 431 frame offset
+@A_BUTTON:                                   ;
     cpx #A_Button                            ; check if we're holding A
-    bcc :+                                   ; nope - skip ahead
+    bcc @RNGIncrement                        ; nope - skip ahead to set flag
     lda #1                                   ; yes - set flag for 122 frame offset
-:   sta IncrementRNG_122                     ; save 122 frame offset flag
+@RNGIncrement:                               ;
+    sta IncrementRNG                         ; save frame offset flag
     jmp TStartGame                           ; and start the game
 @RenderMenu:                                 ;
     ldy MenuSelectedItem                     ; get the current selected item
@@ -191,20 +196,12 @@ DrawSelectionMarkers:
 ; update selected world value
 UpdateValueWorldNumber:
     ldx WorldCount         ; get number of worlds
-    lda HeldButtons        ; check held buttons
-    and #B_Button          ; are we holding B?
-    beq :+                 ; no - skip ahead
-    ldx #$FF               ; otherwise allow selecting any value
-:   jmp UpdateValueShared  ; update selected menu item
+    jmp UpdateValueShared  ; update selected menu item
 
 ; update selected level value
 UpdateValueLevelNumber:
     ldx LevelCount         ; get number of levels per world
-    lda HeldButtons        ; check held buttons
-    and #B_Button          ; are we holding B?
-    beq :+                 ; no - skip ahead
-    ldx #$FF               ; otherwise allow selecting any value
-:   jmp UpdateValueShared  ; update selected menu item
+    jmp UpdateValueShared  ; update selected menu item
 
 ; update selected powerup value
 UpdateValuePUps:

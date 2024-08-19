@@ -510,7 +510,7 @@ LeavesYPosCopy        = $621c
 SaveDataHeader        = $6000
 GamesBeatenCount      = $6007
 
-IncrementRNG_122      = $6008
+IncrementRNG          = $6008
 
 ;sound related defines
 Squ2_NoteLenBuffer    = $07b3
