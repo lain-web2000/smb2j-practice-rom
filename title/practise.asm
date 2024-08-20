@@ -117,9 +117,17 @@ PractiseEnterStage:
     lda EnteringFromMenu                         ; check if we're entering from the menu
     beq @SaveToMenu                              ; no, the player beat a level, update the menu state
     sec                                          ; yes, the player is starting a new game
+	lda AreaNumber
+	beq @DashOne
     lda FrameCounter                             ; we need to offset the frame counter a little bit
     sbc #6                                       ;
     sta FrameCounter                             ;
+	jmp @QuickResume
+@DashOne:
+	lda FrameCounter                             ; we need to offset the frame counter differently for dash one levels
+    sbc #5                                       ;
+    sta FrameCounter                             ;
+@QuickResume:
     jsr RNGQuickResume                           ; and load the rng state
     dec EnteringFromMenu                         ; then mark that we've entered from the menu, so this doesn't happen again
     beq @Shared                                  ; and skip ahead to avoid saving the state for no reason
