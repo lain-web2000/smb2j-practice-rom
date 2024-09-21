@@ -77,10 +77,11 @@ BANK_AdvanceToLevel:
     sbc #$09                            ; otherwise subtract 9 for internal number
     sta WorldNumber                     ; store the result in the world number
     inc HardWorldFlag                   ; and set letter worlds flag
-	lda #$03
-	sta FileListNumber
-	jsr InitializeLeaves
-@NumberWorlds:
+    jsr InitializeLeaves                ; init leaves for letter worlds
+    lda #$03                            ; set correct filelist number
+    sta FileListNumber                  ;
+    bne @InitAreaNumber                 ; unconditionally branch ahead
+@NumberWorlds:                          ;
     cmp #World9                         ; check if we're on world 9
     bne @InitAreaNumber                 ; branch ahead if we're not
     lda LevelNumber                     ; otherwise, check if we're on 9-1

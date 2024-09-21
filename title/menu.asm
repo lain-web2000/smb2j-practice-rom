@@ -165,31 +165,19 @@ MenuNMI:
 ;  Position the "cursors" of the menu at the correct location
 ; ---------------------------------------------------------------------------
 DrawSelectionMarkers:
-    lda #$00                                 ; set palette attributes for sprites
+    lda #$00                                 ; set palette attributes for sprite
     sta Sprite_Attributes + (1 * SpriteLen)  ;
-    lda #$21                                 ;
-    sta Sprite_Attributes + (2 * SpriteLen)  ;
-    lda #$5B                                 ; mushroom elevator for sprite 1
+    lda #$5B                                 ; mushroom elevator for sprite
     sta Sprite_Tilenumber + (1 * SpriteLen)  ;
-    lda #$27                                 ; set solid background for sprite 2
-    sta Sprite_Tilenumber + (2 * SpriteLen)  ;
     lda #$1E                                 ; get initial Y position
     ldy MenuSelectedItem                     ; get current menu item
 :   clc                                      ;
     adc #$10                                 ; add 16px per menu item
     dey                                      ; decrement loop value
     bpl :-                                   ; and loop until done
-    sta Sprite_Y_Position + (1 * SpriteLen)  ; reposition sprite 1 (floating coin)
-    sta Sprite_Y_Position + (2 * SpriteLen)  ; reposition sprite 2 (background color)
-    lda #$A9                                 ; get initial X position
-    sta Sprite_X_Position + (1 * SpriteLen)  ; reposition sprite 1 (floating coin)
-    sbc #$8                                  ; offset by 8px for the background color
-    ldy MenuSelectedSubitem                  ; get which subitem is selected
-:   sec                                      ; then offset by another 8px per subitem
-    sbc #$8                                  ;
-    dey                                      ; decrement loop value
-    bpl :-                                   ; and loop until done
-    sta Sprite_X_Position + (2 * SpriteLen)  ; reposition sprite 2 (background color)
+    sta Sprite_Y_Position + (1 * SpriteLen)  ; reposition sprite
+    lda #$A9                                 ; get X position
+    sta Sprite_X_Position + (1 * SpriteLen)  ; reposition sprite
     rts                                      ; done
 ; ===========================================================================
 
