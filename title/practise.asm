@@ -40,6 +40,31 @@ TStartGame:
     beq @EndCopy                                 ;
     lda #$ff                                     ; otherwise mark all worlds as completed
     sta CompletedWorlds                          ;
+	lda WorldNumber								 ;
+	cmp #World7									 ; Are we in World 7 or 8?
+	beq @World7Setup							 ; If yes, go and check the area number
+	cmp #World8									 ; 
+	beq @World8Setup							 ; 
+	cmp #$0b									 ; Are we in World C?
+	bne @EndCopy								 ; No? Leave.
+@WorldCSetup:									 ;
+	lda LevelNumber								 ; Are we in 6-1?
+	bne @EndCopy								 ; No? THEN PLEASE LEAVE I DID NOT INVITE YOU.
+	lda #$0E									 ;
+	sta $0751									 ;
+	bne @EndCopy								 ;
+@World8Setup:									 ;	
+	lda LevelNumber								 ; Are we in 8-1?
+	bne @EndCopy								 ; No? Go away.
+	jsr @W7W8Setup								 ; Otherwise, set up the magic warps
+@World7Setup:									 ;
+	lda LevelNumber								 ; Are we in 7-3 or 7-4?
+	cmp #$02									 ; Yes, set up the funny.
+	bcc @EndCopy								 ; No, get out.
+@W7W8Setup:										 ;
+	lda #$06									 ;	
+	sta $0751									 ;
+	bne @EndCopy								 ;
 @EndCopy:                                        ;
     lda #$2                                      ; give player 3 lives
     sta NumberofLives                            ;
