@@ -31,6 +31,7 @@ SwimTileRepOffset     = PlayerGraphicsTable + $9e
 .export IRQHandler
 .export InitializeBG_CHR
 .export InitializeSPR_CHR
+.export WriteScoreAndCoinTally
 
 .import BANK_PractisePrintScore
 .import BANK_PractiseEnterStage
@@ -1669,7 +1670,7 @@ WritePPUReg1:
 StatusBarData:
       .byte $ef, $06 ; top score display on title screen
       .byte $62, $06 ; player score
-      .byte $6d, $02 ; coin tally
+      .byte $6b, $02 ; coin tally
       .byte $7a, $03 ; game timer
 
 StatusBarOffset:
@@ -4816,12 +4817,12 @@ FlagpoleRoutine:
            sta FlagpoleFNum_Y_Pos    ;and store vertical coordinate here
 SkipScore: jmp FPGfx                 ;jump to skip ahead and draw flag and floatey number
 GiveFPScr: ldy FlagpoleScore         ;get score offset from earlier (when player touched flagpole)
-           ;cpy #$05
-           ;bne NoEL4F                ;if set to give player an extra life, do so now
+           cpy #$05
+           bne NoEL4F                ;if set to give player an extra life, do so now
            ;inc NumberofLives
-           ;lda #$40
-           ;sta $fe
-           ;jmp NoSc4F
+           lda #$40
+           sta $fe
+           jmp NoSc4F
 NoEL4F:    lda FlagpoleScoreMods,y   ;get amount to award player points
            ldx FlagpoleScoreDigits,y ;get digit with which to award points
            sta DigitModifier,x       ;store in digit modifier
@@ -5356,10 +5357,10 @@ AddToScore:
       jsr DigitsMathRoutine  ;update the score internally with value in digit modifier
 
 WriteScoreAndCoinTally:
-        lda #$01
+        lda #$a1
 WriteDigits:
+        jsr PrintStatusBarNumbers ;print status bar numbers based on nybbles, whatever they be
         jmp BANK_PractisePrintScore
-        ;REPLACED;jsr PrintStatusBarNumbers ;print status bar numbers based on nybbles, whatever they be
         ldy VRAM_Buffer1_Offset   
         lda VRAM_Buffer1-6,y      ;check highest digit of score
         bne NoZSup                ;if zero, overwrite with space tile for zero suppression
@@ -8715,17 +8716,17 @@ RunStarFlagObj:
       .word DelayToAreaEnd
 
 GameTimerFireworks:
-         ;lda GameTimerDisplay+2 ;check to see if last digit of timer matches
-         ;cmp CoinDisplay+1      ;the last digit in the coin tally
-         ;bne NoFWks             ;if not, skip the fireworks
-         ;and #$01
-         ;beq EvenDgs            ;if so, check to see if they are both odd or even
-         ;ldy #$03
-         ;lda #$03               ;if they are both odd, set state and counter
-         ;bne SetFWC             ;for 3 fireworks to go off
-EvenDgs: ;ldy #$00               ;if they are both even, set state and counter
-         ;lda #$06               ;for 6 fireworks to go off
-         ;bne SetFWC
+         lda GameTimerDisplay+2 ;check to see if last digit of timer matches
+         cmp CoinDisplay+1      ;the last digit in the coin tally
+         bne NoFWks             ;if not, skip the fireworks
+         and #$01
+         beq EvenDgs            ;if so, check to see if they are both odd or even
+         ldy #$03
+         lda #$03               ;if they are both odd, set state and counter
+         bne SetFWC             ;for 3 fireworks to go off
+EvenDgs: ldy #$00               ;if they are both even, set state and counter
+         lda #$06               ;for 6 fireworks to go off
+         bne SetFWC
 NoFWks:  ldy #$00
          lda #$ff               ;otherwise set value for no fireworks
 SetFWC:  sta FireworksCounter   ;set fireworks counter here
@@ -10475,13 +10476,13 @@ ChkFlagpoleYPosLoop:
        dex                       ;otherwise decrement offset to use 
        bne ChkFlagpoleYPosLoop   ;do this until all data is checked (use last one if all checked)
 MtchF: stx FlagpoleScore         ;store offset here to be used later
-       ;lda CoinDisplay
-       ;cmp CoinDisplay+1         ;check to see if coin tally digits are the same
-       ;bne RunFR                 ;if not, branch to use flagpole score data as-is
-       ;cmp GameTimerDisplay+2    ;check to see if the last digit of game timer matches
-       ;bne RunFR                 ;the two digits, if not, branch to use data as-is
-       ;lda #$05
-       ;sta FlagpoleScore         ;otherwise, set to give player an extra life
+       lda CoinDisplay
+       cmp CoinDisplay+1         ;check to see if coin tally digits are the same
+       bne RunFR                 ;if not, branch to use flagpole score data as-is
+       cmp GameTimerDisplay+2    ;check to see if the last digit of game timer matches
+       bne RunFR                 ;the two digits, if not, branch to use data as-is
+       lda #$05
+       sta FlagpoleScore         ;otherwise, set to give player an extra life
 RunFR: lda #$04
        sta GameEngineSubroutine  ;set value to run flagpole slide routine
        jmp PutPlayerOnVine       ;jump to end of climbing code

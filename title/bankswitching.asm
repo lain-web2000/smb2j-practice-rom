@@ -1,4 +1,5 @@
 .import __PRACTISE_WRAMCODE_LOAD__, __PRACTISE_WRAMCODE_RUN__, __PRACTISE_WRAMCODE_SIZE__
+.import WriteScoreAndCoinTally
 
 
 ; ===========================================================================
@@ -46,6 +47,7 @@ jsr BANK_TITLE_RTS
 jmp HotReset
 
 BANK_PractiseWriteBottomStatusLine:
+jsr WriteScoreAndCoinTally ;write player's score and coin tally to screen
 jsr BANK_TITLE_RTS
 jsr PractiseWriteBottomStatusLine
 jmp BANK_GAME_RTS

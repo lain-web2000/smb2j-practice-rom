@@ -1,4 +1,0 @@
-sm2main.o:	sm2main.asm defines.inc sound.asm levels.asm sm2char1_bg.chr sm2char1_spr.chr ending_spr.chr
-
-sm2main.asm defines.inc sound.asm levels.asm sm2char1_bg.chr sm2char1_spr.chr ending_spr.chr:
-

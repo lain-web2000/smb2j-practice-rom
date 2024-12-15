@@ -44,6 +44,10 @@ MathFrameruleDigitEnd:
 MathInGameFrameruleDigitStart:
   .byte $00, $00, $00, $00, $00 ; ingame framerule
 MathInGameFrameruleDigitEnd:
+CustomAddressA:
+  .word $0000
+CustomAddressB:
+  .word $0000
 
 ; $7E00-$7FFF - relocated bank switching code
 RelocatedCodeLocation = $7E00
@@ -58,8 +62,16 @@ TitleResetInner:
     stx PPU_CTRL_REG2                  ;
     jsr InitializeMemory               ; clear memory
     jsr ForceClearWRAM                 ; clear all wram state
-    lda #8                             ; set starting framerule
+    lda #9                             ; set starting framerule
     sta MathFrameruleDigitStart        ;
+    lda #$ad                           ; set default address display
+    sta CustomAddressA                 ; $03ad (relative X position)
+    lda #$03                           ; for address A
+    sta CustomAddressA+1               ;
+    lda #$05                           ; $0705 (x subspeed)
+    sta CustomAddressB                 ; for address B
+    lda #$07                           ;
+    sta CustomAddressB+1               ;
 :   lda PPU_STATUS                     ; wait for vblank
     bpl :-                             ;
 HotReset2:                             ;
