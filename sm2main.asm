@@ -1678,12 +1678,12 @@ StatusBarOffset:
 
 PrintStatusBarNumbers:
       sta $00            ;store player-specific offset
-      jsr OutputNumbers  ;use first nybble to print the coin display
-      lda $00            ;move high nybble to low
-      lsr                ;and print the score display
-      lsr
-      lsr
-      lsr
+      jmp OutputNumbers  ;use first nybble to print the coin display
+      ;lda $00            ;move high nybble to low
+      ;lsr                ;and print the score display
+      ;lsr
+      ;lsr
+      ;lsr
 
 OutputNumbers:
              clc                      ;add 1 to low nybble
@@ -8716,21 +8716,21 @@ RunStarFlagObj:
       .word DelayToAreaEnd
 
 GameTimerFireworks:
-         lda GameTimerDisplay+2 ;check to see if last digit of timer matches
-         cmp CoinDisplay+1      ;the last digit in the coin tally
-         bne NoFWks             ;if not, skip the fireworks
-         and #$01
-         beq EvenDgs            ;if so, check to see if they are both odd or even
-         ldy #$03
-         lda #$03               ;if they are both odd, set state and counter
-         bne SetFWC             ;for 3 fireworks to go off
-EvenDgs: ldy #$00               ;if they are both even, set state and counter
-         lda #$06               ;for 6 fireworks to go off
-         bne SetFWC
-NoFWks:  ldy #$00
-         lda #$ff               ;otherwise set value for no fireworks
-SetFWC:  sta FireworksCounter   ;set fireworks counter here
-         sty Enemy_State,x      ;set whatever state we have in star flag object
+;         lda GameTimerDisplay+2 ;check to see if last digit of timer matches
+;         cmp CoinDisplay+1      ;the last digit in the coin tally
+;         bne NoFWks             ;if not, skip the fireworks
+;         and #$01
+;         beq EvenDgs            ;if so, check to see if they are both odd or even
+;         ldy #$03
+;         lda #$03               ;if they are both odd, set state and counter
+;         bne SetFWC             ;for 3 fireworks to go off
+;EvenDgs: ldy #$00               ;if they are both even, set state and counter
+;         lda #$06               ;for 6 fireworks to go off
+;         bne SetFWC
+;NoFWks:  ldy #$00
+;         lda #$ff               ;otherwise set value for no fireworks
+;SetFWC:  sta FireworksCounter   ;set fireworks counter here
+;         sty Enemy_State,x      ;set whatever state we have in star flag object
 
 IncrementSFTask1:
       inc StarFlagTaskControl  ;increment star flag object task number
@@ -14176,63 +14176,63 @@ NextBlue:  lda BlueTints,y        ;set background color based on color offset
 ExFade:    rts
 
 EraseLivesLines:
-     ldx #$08                  ;erase bottom two lines
-ELL: lda TwoBlankRows,x
-     sta VRAM_Buffer1,x
-     dex
-     bpl ELL
-     inc OperMode_Task
-     jsr EraseEndingCounters   ;init ending counters
-     lda #$60
-     sta MushroomRetDelay      ;wait before flashing each mushroom retainer in next sub
-     rts
+		ldx #$08                  ;erase bottom two lines
+ELL: 	lda TwoBlankRows,x
+		sta VRAM_Buffer1,x
+		dex
+		bpl ELL
+		inc OperMode_Task
+		jsr EraseEndingCounters   ;init ending counters
+		lda #$60
+		sta MushroomRetDelay      ;wait before flashing each mushroom retainer in next sub
+		rts
     
 RunMushroomRetainers:
-       jsr MushroomRetainersForW8  ;draw and flash the seven mushroom retainers
-       lda EventMusicBuffer        ;if still playing victory music, branch to leave
-       bne ExRMR
-       lda HardWorldFlag           ;if on world D, branch elsewhere
-       bne BackToNormal
-       inc OperMode_Task           ;otherwise just move onto the last task
-ExRMR: rts
+		jsr MushroomRetainersForW8  ;draw and flash the seven mushroom retainers
+		lda EventMusicBuffer        ;if still playing victory music, branch to leave
+		bne ExRMR
+		lda HardWorldFlag           ;if on world D, branch elsewhere
+		bne BackToNormal
+		inc OperMode_Task           ;otherwise just move onto the last task
+ExRMR: 	rts
 
 EndingDiskRoutines:
-    lda DiskIOTask
-    jsr JumpEngine
+		lda DiskIOTask
+		jsr JumpEngine
 
-    .word DiskScreen
-    .word UpdateGamesBeaten
+		.word DiskScreen
+		.word UpdateGamesBeaten
 
 UpdateGamesBeaten:
-    lda GamesBeatenCount     ;get the new count of games beaten
-    clc                      ;note that this code is skipped if on world D
-    adc #$01                 ;add one to it, to a maximum of 24/$18
-    cmp #25
-    bcc SetS2S
-    lda #24                  ;sorry, only 24 stars allowed
+		lda GamesBeatenCount     ;get the new count of games beaten
+		clc                      ;note that this code is skipped if on world D
+		adc #$01                 ;add one to it, to a maximum of 24/$18
+		cmp #25
+		bcc SetS2S
+		lda #24                  ;sorry, only 24 stars allowed
 SetS2S:
-    sta GamesBeatenCount
+		sta GamesBeatenCount
 
 BackToNormal:
-    lda #$00
-    sta DiskIOTask           ;erase task numbers
-    sta OperMode_Task
-    lda HardWorldFlag        ;if in world D, branch to end the game
-    bne EndTheGame
-    lda CompletedWorlds      ;if completed all worlds without skipping over any
-    cmp #$ff                 ;then branch elsewhere (note warping backwards may
-    beq GoToWorld9           ;allow player to complete skipped worlds)
+		lda #$00
+		sta DiskIOTask           ;erase task numbers
+		sta OperMode_Task
+		lda HardWorldFlag        ;if in world D, branch to end the game
+		bne EndTheGame
+		lda CompletedWorlds      ;if completed all worlds without skipping over any
+		cmp #$ff                 ;then branch elsewhere (note warping backwards may
+		beq GoToWorld9           ;allow player to complete skipped worlds)
 EndTheGame:
-    lda #$00
-    sta CompletedWorlds      ;init completed worlds flag, go back to title screen mode
-    sta OperMode
-    jmp AttractModeSubs      ;jump to title screen mode routines
+		lda #$00
+		sta CompletedWorlds      ;init completed worlds flag, go back to title screen mode
+		sta OperMode
+		jmp AttractModeSubs      ;jump to title screen mode routines
 GoToWorld9:
-    lda #$00
-    sta CompletedWorlds      ;init completed worlds flag
-    sta NumberofLives        ;give the player one life
-    sta FantasyW9MsgFlag
-    jmp NextWorld            ;run world 9
+		lda #$00
+		sta CompletedWorlds      ;init completed worlds flag
+		sta NumberofLives        ;give the player one life
+		sta FantasyW9MsgFlag
+		jmp NextWorld            ;run world 9
 
 FlashMRSpriteDataOfs:
     .byte $50, $b0, $e0, $68, $98, $c8
@@ -14464,175 +14464,175 @@ SaveLp: lda SM2Header,x         ;write save data header
         rts                     ;otherwise we have reset save data, leave
 		
 IRQHandler:
-	sei
-	php                      ;save regs
-	pha
-	txa
-	pha
-	tya
-	pha        
-      ldy #$06                 ;delay for right part of scanline 31
-DelS: dey
-      bne DelS
-	lda Mirror_PPU_CTRL
-	and #$ef                 ;mask out sprite address high reg of ctrl reg mirror
-	ora NameTableSelect      ;mask in whatever's set here
-	sta Mirror_PPU_CTRL      ;update the register and its mirror
-	sta PPU_CTRL
-	lda #$00
-	sta MMC3_IRQDisable      ;disable IRQs for the rest of the frame
-	lda HorizontalScroll
-	sta PPU_SCROLL           ;set scroll regs for the screen under the status bar
-	lda VerticalScroll       ;to achieve the split screen effect
-	sta PPU_SCROLL
-	lda #$00
-	sta IRQAckFlag           ;indicate IRQ was acknowledged
-	pla
-	tay                      ;return regs, reenable IRQs and leave
-	pla
-	tax
-	pla
-	plp
-	cli
-	rti
+		sei
+		php                      ;save regs
+		pha
+		txa
+		pha
+		tya
+		pha        
+		ldy #$06                 ;delay for right part of scanline 31
+DelS: 	dey
+		bne DelS
+		lda Mirror_PPU_CTRL
+		and #$ef                 ;mask out sprite address high reg of ctrl reg mirror
+		ora NameTableSelect      ;mask in whatever's set here
+		sta Mirror_PPU_CTRL      ;update the register and its mirror
+		sta PPU_CTRL
+		lda #$00
+		sta MMC3_IRQDisable      ;disable IRQs for the rest of the frame
+		lda HorizontalScroll
+		sta PPU_SCROLL           ;set scroll regs for the screen under the status bar
+		lda VerticalScroll       ;to achieve the split screen effect
+		sta PPU_SCROLL
+		lda #$00
+		sta IRQAckFlag           ;indicate IRQ was acknowledged
+		pla
+		tay                      ;return regs, reenable IRQs and leave
+		pla
+		tax
+		pla
+		plp
+		cli
+		rti
 	
 Reset:
-	sei                        ;replicate init code present in FDS BIOS
-	lda #$10
-	sta PPU_CTRL
-	cld
-	lda #$06
-	sta PPU_MASK
-	ldx #$02
+		sei                        ;replicate init code present in FDS BIOS
+		lda #$10
+		sta PPU_CTRL
+		cld
+		lda #$06
+		sta PPU_MASK
+		ldx #$02
 VBlank:
-	lda PPU_STATUS
-	bpl VBlank
-	dex
-	bne VBlank
-	stx JOYPAD_PORT1
-	stx SND_DELTA_REG
-	lda #$c0
-	sta JOYPAD_PORT2
-	lda #$0f
-	sta SND_MASTERCTRL_REG
-	ldx #$ff
-	txs
-	lda #$00
-	sta MMC3_Mirroring          ; vertical mirroring
-	lda #%10000000
-	sta MMC3_PRGRAMProtect      ; enable PRG-RAM
-	jsr LoadGameBank            ;switch PRG banks
-	jsr InitializeBG_CHR        ;init CHR banks
-      jsr InitializeSPR_CHR
-	jsr CheckSaveData           ;check validity of save data
-	jmp Start                   ;now start the game!
+		lda PPU_STATUS
+		bpl VBlank
+		dex
+		bne VBlank
+		stx JOYPAD_PORT1
+		stx SND_DELTA_REG
+		lda #$c0
+		sta JOYPAD_PORT2
+		lda #$0f
+		sta SND_MASTERCTRL_REG
+		ldx #$ff
+		txs
+		lda #$00
+		sta MMC3_Mirroring          ; vertical mirroring
+		lda #%10000000
+		sta MMC3_PRGRAMProtect      ; enable PRG-RAM
+		jsr LoadGameBank            ;switch PRG banks
+		jsr InitializeBG_CHR        ;init CHR banks
+		jsr InitializeSPR_CHR
+		jsr CheckSaveData           ;check validity of save data
+		jmp Start                   ;now start the game!
 
 InitializeBG_CHR:
-      lda #BG_MainBank
-      jsr SwitchBG_CHR0
-      lda #BG_MainBank+2
+		lda #BG_MainBank
+		jsr SwitchBG_CHR0
+		lda #BG_MainBank+2
 SwitchBG_CHR1:
-	pha
-	lda #%00000001
-	sta MMC3_BankSelect
-	pla
-	sta MMC3_BankData
-	rts
+		pha
+		lda #%00000001
+		sta MMC3_BankSelect
+		pla
+		sta MMC3_BankData
+		rts
 SwitchBG_CHR0:
-	pha
-	lda #%00000000
-	sta MMC3_BankSelect
-	pla
-	sta MMC3_BankData
-	rts
+		pha
+		lda #%00000000
+		sta MMC3_BankSelect
+		pla
+		sta MMC3_BankData
+		rts
 
 InitializeSPR_CHR:
-      lda #Spr_MainBank
-      jsr SwitchSPR_CHR0
-      lda #Spr_MainBank+1
-      jsr SwitchSPR_CHR1
-      lda #Spr_MainBank+2
-      jsr SwitchSPR_CHR2
-      lda #Spr_MainBank+3
+		lda #Spr_MainBank
+		jsr SwitchSPR_CHR0
+		lda #Spr_MainBank+1
+		jsr SwitchSPR_CHR1
+		lda #Spr_MainBank+2
+		jsr SwitchSPR_CHR2
+		lda #Spr_MainBank+3
 SwitchSPR_CHR3:
-	pha
-	lda #%00000101
-	sta MMC3_BankSelect
-	pla
-	sta MMC3_BankData
-	rts
+		pha
+		lda #%00000101
+		sta MMC3_BankSelect
+		pla
+		sta MMC3_BankData
+		rts
 SwitchSPR_CHR2:
-	pha
-	lda #%00000100
-	sta MMC3_BankSelect
-	pla
-	sta MMC3_BankData
-	rts
+		pha
+		lda #%00000100
+		sta MMC3_BankSelect
+		pla
+		sta MMC3_BankData
+		rts
 SwitchSPR_CHR1:
-	pha
-	lda #%00000011
-	sta MMC3_BankSelect
-	pla
-	sta MMC3_BankData
-	rts
+		pha
+		lda #%00000011
+		sta MMC3_BankSelect
+		pla
+		sta MMC3_BankData
+		rts
 SwitchSPR_CHR0:
-	pha
-	lda #%00000010
-	sta MMC3_BankSelect
-	pla
-	sta MMC3_BankData
-	rts
+		pha
+		lda #%00000010
+		sta MMC3_BankSelect
+		pla
+		sta MMC3_BankData
+		rts
 
 LoadGameBank:
-	lda #GameBank        ;load main bank
-	jsr SwitchPRGBank0
-	lda #GameBank+1        ;load main bank		
+		lda #GameBank        ;load main bank
+		jsr SwitchPRGBank0
+		lda #GameBank+1        ;load main bank		
 SwitchPRGBank1:
-	pha
-	lda #%00000111
-	sta MMC3_BankSelect
-	pla
-	sta MMC3_BankData
-	rts
+		pha
+		lda #%00000111
+		sta MMC3_BankSelect
+		pla
+		sta MMC3_BankData
+		rts
 SwitchPRGBank0:
-	pha
-	lda #%00000110
-	sta MMC3_BankSelect
-	pla
-	sta MMC3_BankData
-	rts
+		pha
+		lda #%00000110
+		sta MMC3_BankSelect
+		pla
+		sta MMC3_BankData
+		rts
 
 RunSoundEngine:
-	lda #SoundBank        ;switch bank
-	jsr SwitchPRGBank0
-	lda #SoundBank+1        ;switch bank again :DDDDDDDD
-	jsr SwitchPRGBank1
-	jsr SoundEngine       ;run relevant routine
-	jmp LoadGameBank      ;and return to main bank
+		lda #SoundBank        ;switch bank
+		jsr SwitchPRGBank0
+		lda #SoundBank+1        ;switch bank again :DDDDDDDD
+		jsr SwitchPRGBank1
+		jsr SoundEngine       ;run relevant routine
+		jmp LoadGameBank      ;and return to main bank
 
 RunLoadAreaPointer:
-	lda #LevelsBank       ;switch bank
-	jsr SwitchPRGBank0
-	lda #LevelsBank+1       ;switch bank again :DDDDDDDD
-	jsr SwitchPRGBank1
-	jsr LoadAreaPointer   ;run relevant routine
-	jmp LoadGameBank      ;and return to main bank
+		lda #LevelsBank       ;switch bank
+		jsr SwitchPRGBank0
+		lda #LevelsBank+1       ;switch bank again :DDDDDDDD
+		jsr SwitchPRGBank1
+		jsr LoadAreaPointer   ;run relevant routine
+		jmp LoadGameBank      ;and return to main bank
 
 RunGetAreaDataAddrs:
-	lda #LevelsBank       ;switch bank
-	jsr SwitchPRGBank0
-	lda #LevelsBank+1       ;switch bank again :DDDDDDDD
-	jsr SwitchPRGBank1
-	jsr GetAreaDataAddrs  ;run relevant routine
-	jmp LoadGameBank      ;and return to main bank
+		lda #LevelsBank       ;switch bank
+		jsr SwitchPRGBank0
+		lda #LevelsBank+1       ;switch bank again :DDDDDDDD
+		jsr SwitchPRGBank1
+		jsr GetAreaDataAddrs  ;run relevant routine
+		jmp LoadGameBank      ;and return to main bank
 
 RunGetAreaPointer:
-	lda #LevelsBank       ;switch bank
-	jsr SwitchPRGBank0
-	lda #LevelsBank+1       ;switch bank again :DDDDDDDD
-	jsr SwitchPRGBank1
-	jsr GetAreaPointer    ;run relevant routine
-	jmp LoadGameBank      ;and return to main bank
+		lda #LevelsBank       ;switch bank
+		jsr SwitchPRGBank0
+		lda #LevelsBank+1       ;switch bank again :DDDDDDDD
+		jsr SwitchPRGBank1
+		jsr GetAreaPointer    ;run relevant routine
+		jmp LoadGameBank      ;and return to main bank
 
 ;-------------------------------------------------------------------------------------
 ;INTERRUPT VECTORS

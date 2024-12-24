@@ -383,7 +383,14 @@ RedrawLowFreqStatusbar:
     iny                                          ;
     sty PendingScoreDrawPosition                 ; and store it as our pending position
     jsr @PrintRule                               ; draw the current framerule value
+	lda StarFlagTaskControl						 ; is the timer counting down at the end of a normal level?
+	cmp #$02									 ; if yes, do not draw frame counter numbers, the vram buffer will cry.
+	beq @NoFC									 ;
+	lda OperMode								 ; is the timer counting down at the end of a castle level?
+	cmp #VictoryMode							 ; if yes, do not draw frame counter numbers, the vram buffer will not cry as much, but still.
+	beq @NoFC									 ;
     jsr @PrintFramecounter                       ; draw the current framecounter value
+@NoFC:
     ldx ObjectOffset                             ; load object offset, our caller might expect it to be unchanged
     rts                                          ; and exit
 @RefreshBufferX:                                 ;
